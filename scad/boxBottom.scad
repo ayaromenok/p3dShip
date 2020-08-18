@@ -25,12 +25,12 @@ include <../../lib/lib.scad>
 //87g, 26143, 5.5h
 //boxBottomCyl_4(200,200, topSupportRound=false);
 
-boxBottomCyl_1(50,50,topSupportRound=true);
-//boxBottomCyl_4(50,50,topSupportRound=true);
+boxBottomCyl_1(50,50);
 
 
 
-module boxBottomCyl_1 (size=200, height=200, px=0, py=0, pz=0, rx=0, ry=0, rz=0, topSupportRound=false){
+
+module boxBottomCyl_1 (size=200, height=200, px=0, py=0, pz=0, rx=0, ry=0, rz=0, sideSupport=true){
     translate([px, py, pz])
     rotate([rx, ry, rz]) {
         size_2 = size/2;
@@ -39,6 +39,7 @@ module boxBottomCyl_1 (size=200, height=200, px=0, py=0, pz=0, rx=0, ry=0, rz=0,
         height_2= height/2;
         LRadius=6;
         LDiameter=LRadius*2;
+        prnShift=0.3;
         
         longHeight=3;
         longShift=3;
@@ -59,35 +60,40 @@ module boxBottomCyl_1 (size=200, height=200, px=0, py=0, pz=0, rx=0, ry=0, rz=0,
                 yPoly(p10, szz=size*sin(45)*2, px=size_2,py=-size_2,pz=-height_2,      rx=0,ry=-90, rz=-45);
             
                 //vertical langerons
-                yCyl(LRadius,height,0,0,0);                                
-                
-                
-                //top diagonal longerons
-                if (topSupportRound) {
-                    supportRound(sizeDiag_2,longHeight,longShift,    size_4,size_4,height_2-sizeDiag_2/2,   45,90,0);
-                    supportRound(sizeDiag_2,longHeight,longShift,    size_4,-size_4,height_2-sizeDiag_2/2,   135,90,0);
-                    supportRound(sizeDiag_2,longHeight,longShift,    -size_4,-size_4,height_2-sizeDiag_2/2,   225,90,0);
-                    supportRound(sizeDiag_2,longHeight,longShift,    -size_4,size_4,height_2-sizeDiag_2/2,   315,90,0);
-                    } else {
-                    yPoly(p10, szz=size*sin(45)*2, px=-size_2,py=-size_2,pz=height_2,      rx=0,ry=90, rz=45);
-                    yPoly(p10, szz=size*sin(45)*2, px=-size_2,py=size_2,pz=height_2,      rx=0,ry=90, rz=-45);
-                }//topSupportRound
-                //square connectors on the top
-                yCube(LDiameter,LDiameter,longShift,    size_2,size_2,height_2-longShift/2);
-                yCube(LDiameter,LDiameter,longShift,    size_2,-size_2,height_2-longShift/2);
-                yCube(LDiameter,LDiameter,longShift,    -size_2,size_2,height_2-longShift/2);
-                yCube(LDiameter,LDiameter,longShift,    -size_2,-size_2,height_2-longShift/2);
+                yCyl(LRadius,height,0,0,0);                               
             }//union
             
             //holes on top
-            yCyl(LRadius/2,LRadius,0,0,height_2);
+            yCyl(LRadius/2+prnShift,LRadius,0,0,height_2);
+            yCube(LRadius*4,LRadius/2+prnShift,LRadius,0,0,height_2);
+            yCube(LRadius/2+prnShift,LRadius*4,LRadius,0,0,height_2);
+            
+            //side support holes
+            if (sideSupport){
+                    difference(){
+                        yCyl(LRadius+prnShift,height,size_2,size_2,3);
+                        yCyl(LRadius/2-prnShift,height,size_2,size_2,3);
+                    }//diff
+                    difference(){
+                        yCyl(LRadius+prnShift,height,size_2,-size_2,3);
+                        yCyl(LRadius/2-prnShift,height,size_2,-size_2,3);
+                    }//diff
+                    difference(){
+                        yCyl(LRadius+prnShift,height,-size_2,size_2,3);
+                        yCyl(LRadius/2-prnShift,height,-size_2,size_2,3);
+                    }//diff    
+                    difference(){
+                        yCyl(LRadius+prnShift,height,-size_2,-size_2,3);
+                        yCyl(LRadius/2-prnShift,height,-size_2,-size_2,3);
+                    }//diff        
+            }//if sideSupport
+
             
             //side cuts
             yCube(LDiameter,size+LDiameter,height+1,size_2+LRadius);
             yCube(LDiameter,size+LDiameter,height+1,-size_2-LRadius);
             yCube(size+LDiameter,LDiameter,height+1,0,size_2+LRadius);
-            yCube(size+LDiameter,LDiameter,height+1,0,-size_2-LRadius);
-            
+            yCube(size+LDiameter,LDiameter,height+1,0,-size_2-LRadius);            
         }//diff
         
     }//transform
